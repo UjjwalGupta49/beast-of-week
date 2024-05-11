@@ -4,6 +4,7 @@ import axios from 'axios';
 interface TradingHistoryQuery {
     from: string;
     to: string;
+    marketId?: string | null;
 }
 
 interface Trade {
@@ -11,8 +12,9 @@ interface Trade {
     pnlUsd: string | null;
 }
 
-const fetchTradingHistory = async (from: number, to: number) => {
-    const url = `https://api.prod.flash.trade/trading-history/filter?to=${to}&from=${from}&eventTypes=TAKE_PROFIT&eventTypes=CLOSE_POSITION&eventTypes=STOP_LOSS&eventTypes=LIQUIDATE`;
+const fetchTradingHistory = async (from: number, to: number, marketId?: string | null) => {
+    let queryParams = `to=${to}&from=${from}&eventTypes=TAKE_PROFIT&eventTypes=CLOSE_POSITION&eventTypes=STOP_LOSS&eventTypes=LIQUIDATE`;
+    const url = `https://api.prod.flash.trade/trading-history/filter?${queryParams}`;
     try {
         const response = await axios.get(url);
         return response.data;
@@ -21,11 +23,19 @@ const fetchTradingHistory = async (from: number, to: number) => {
         throw error;
     }
 };
+const sortPnlByOwner = (pnlByOwner: Record<string, number>): Record<string, number> => {
+    const sortedPnls = Object.entries(pnlByOwner)
+        .sort(([, a], [, b]) => b - a)  // Descending sort based on PNL values
+        .reduce((acc, [key, value]) => {
+            acc[key] = value;
+            return acc;
+        }, {} as Record<string, number>);
+
+    return sortedPnls;
+};
 
 const calculateCumulativePnls = (trades: Trade[]) => {
     const pnlByOwner: Record<string, number> = {};
-    
-    // Calculate the cumulative PnLs for each owner
     for (const trade of trades) {
         if (trade.pnlUsd !== null) {
             const pnl = parseFloat(trade.pnlUsd);
@@ -35,26 +45,18 @@ const calculateCumulativePnls = (trades: Trade[]) => {
         }
     }
 
-    // Multiply the cumulative PnLs by 10^-6 for each owner
     for (const owner in pnlByOwner) {
         pnlByOwner[owner] *= 10 ** -6;
     }
 
-    // Convert the object to an array of entries [owner, pnl] and sort it in descending order
-    const sortedPnls = Object.entries(pnlByOwner).sort(([, a], [, b]) => b - a);
-
-    // Convert back to an object
-    const sortedPnlByOwner = Object.fromEntries(sortedPnls);
-    
-    return sortedPnlByOwner;
+    return pnlByOwner;
 };
-
 
 const handler = async (
     req: NextApiRequest & { query: TradingHistoryQuery },
     res: NextApiResponse,
 ) => {
-    const { from, to } = req.query;
+    const { from, to, marketId } = req.query;
 
     if (typeof from !== 'string' || typeof to !== 'string') {
         res.status(400).json({ error: 'Invalid or missing query parameters' });
@@ -68,10 +70,17 @@ const handler = async (
         if (isNaN(fromTimestamp) || isNaN(toTimestamp)) {
             throw new Error("Invalid timestamps");
         }
+        const trades = await fetchTradingHistory(fromTimestamp, toTimestamp, marketId);
+        let filteredTrades = trades;
+        if (marketId) {
+            filteredTrades = trades.filter((trade: any) => trade.market === marketId);
+        }
 
-        const trades = await fetchTradingHistory(fromTimestamp, toTimestamp);
-        const pnlByOwner = calculateCumulativePnls(trades);
-        res.status(200).json(pnlByOwner);
+        const pnlByOwner = calculateCumulativePnls(filteredTrades);
+        const sortedPnlByOwner = sortPnlByOwner(pnlByOwner);
+
+        res.status(200).json(sortedPnlByOwner);
+
     } catch (error) {
         console.error('Handler error:', error);
         res.status(500).json({ error: 'Failed to fetch trading history' });

@@ -5,9 +5,9 @@ import { useRouter } from 'next/router';
 import { Transition } from '@headlessui/react';
 import axios from 'axios';
 
-const fetchTradingHistory = async (from: number, to: number, setTradingData: Function) => {
+const fetchTradingHistory = async (from: number, to: number, marketId: string | null, setTradingData: Function) => {
     try {
-        const response = await axios.get(`/api/getPnl?from=${from}&to=${to}`);
+        const response = await axios.get(`/api/getPnl?from=${from}&to=${to}&marketId=${marketId}`);
         setTradingData(response.data);
         console.log('Trading history data:', response.data);
     } catch (error) {
@@ -28,7 +28,7 @@ const copyToClipboard = (text: string, setNotificationVisible: Function) => {
 
 const BeastPage = () => {
     const router = useRouter();
-    const { from, to } = router.query;
+    const { from, to, marketId } = router.query;
     const [tradingData, setTradingData] = useState<Record<string, number> | null>(null);
     const [notificationVisible, setNotificationVisible] = useState(false);
 
@@ -36,9 +36,10 @@ const BeastPage = () => {
         if (from && to) {
             const fromTimestamp = parseInt(from as string, 10);
             const toTimestamp = parseInt(to as string, 10);
-            fetchTradingHistory(fromTimestamp, toTimestamp, setTradingData);
+            const validMarketId = typeof marketId === 'string' ? marketId : null;
+            fetchTradingHistory(fromTimestamp, toTimestamp, validMarketId, setTradingData);
         }
-    }, [from, to]);
+    }, [from, to, marketId]);
 
 
     return (

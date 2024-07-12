@@ -1,13 +1,5 @@
-export interface MarketInfo {
-  [key: string]: {
-      tokenPair: string;
-      side: string;
-      pool: string;
-  }
-}
 
-
-const marketInfo: MarketInfo = {
+const marketInfo = {
   "8p5imag5r4JBZoxb7Wq8ysgu9LpkPix7n4i9z6TJZDt7": {
     tokenPair: "GBP/USDC",
     side: "long",
@@ -129,25 +121,12 @@ const marketInfo: MarketInfo = {
     side:"short",
     pool: "Governance.1"
   },
-    "DvvnSEZueicT9UN9WMvfYP3B4NQDgiNjjtbKLenLakxv":{
-    tokenPair:"BONK/BONK",
-    side:"long",
-    pool: "Community.1"
-  },
-    "3EYDn8VkY19QBStG4QtvLAdPScReLS7kuchhterF7ADP":{
-    tokenPair:"BONK/USDC",
-    side:"short",
-    pool: "Community.1"
-  },
+  
 
 //   "":{
 //     tokenPair:"",
-//     side:"",
-//     pool: ""
+//     side:""
 //   },
 };
-// Crypto.1, Virtual.1, Governance.1, Community.1
-
-
-
+// Crypto.1, Virtual.1, Governance.1
 export { marketInfo };

@@ -7,6 +7,11 @@ import axios from "axios";
 import FileSaver from "file-saver";
 import { Parser } from "json2csv";
 
+interface Profit {
+  "net profit": number;
+  "gross profit": number;
+}
+
 const fetchTradingHistory = async (
   from: number,
   to: number,
@@ -91,9 +96,11 @@ const shortenAddress = (address: string) => {
 const BeastPage = () => {
   const router = useRouter();
   const { from, to, marketId } = router.query;
-  const [tradingData, setTradingData] = useState<Record<string, number> | null>(
+
+  const [tradingData, setTradingData] = useState<Record<string, Profit> | null>(
     null
   );
+  
   const [notificationVisible, setNotificationVisible] = useState(false);
 
   useEffect(() => {
@@ -126,34 +133,41 @@ const BeastPage = () => {
                   Net Profit
                 </th>
                 <th className="px-6 py-3 border-b-2 border-blue-300 text-center text-lg font-medium text-blue-800">
+                  Gross Profit
+                </th>
+                <th className="px-6 py-3 border-b-2 border-blue-300 text-center text-lg font-medium text-blue-800">
                   CSV Of Trades
                 </th>
               </tr>
             </thead>
             <tbody>
-              {Object.entries(tradingData).map(([user, pnl]) => (
-                <tr key={user}>
-                  <td
-                    className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg cursor-pointer"
-                    onClick={() =>
-                      copyToClipboard(user, setNotificationVisible)
-                    }
-                  >
-                    {shortenAddress(user)}
-                  </td>
-                  <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">
-                    {pnl.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 border-b border-blue-300 text-center">
-                    <button
-                      onClick={() => getTraderCsv(user)}
-                      className="ml-4 p-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-                    >
-                      ⬇️
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            {Object.entries(tradingData).map(([user, pnl]) => (
+  <tr key={user}>
+    <td
+      className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg cursor-pointer"
+      onClick={() =>
+        copyToClipboard(user, setNotificationVisible)
+      }
+    >
+      {shortenAddress(user)}
+    </td>
+    <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">
+      {pnl["net profit"].toFixed(2)} 
+    </td>
+    <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">
+      {pnl["gross profit"].toFixed(2)}
+    </td>
+    <td className="px-6 py-4 border-b border-blue-300 text-center">
+      <button
+        onClick={() => getTraderCsv(user)}
+        className="ml-4 p-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+      >
+        ⬇️
+      </button>
+    </td>
+  </tr>
+))}
+
             </tbody>
           </table>
         </div>

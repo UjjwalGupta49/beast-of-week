@@ -39,7 +39,7 @@ interface Profit {
   "open fee": number;
 }
 
-const POOL_NAMES = ["Crypto.1", "Virtual.1", "Governance.1"];
+const POOL_NAMES = ["Crypto.1", "Virtual.1", "Governance.1", "Community.1"];
 const POOL_CONFIGS = POOL_NAMES.map((f) =>
   PoolConfig.fromIdsByName(f, "mainnet-beta")
 );
@@ -57,6 +57,13 @@ const getCollateralTokenDecimals = (marketId: string): number => {
   const tokenPair = marketInfo[marketId]?.tokenPair;
   if (!tokenPair) return 0;
   const secondTokenSymbol = tokenPair.split("/")[1];
+  if (marketId == "DvvnSEZueicT9UN9WMvfYP3B4NQDgiNjjtbKLenLakxv") {
+    console.log({
+      tokenPair: tokenPair,
+      secondTokenSymbol: secondTokenSymbol,
+      decimals: ALL_TOKENS.find((i) => i.symbol === secondTokenSymbol)?.decimals || 0
+    })
+  };
   return ALL_TOKENS.find((i) => i.symbol === secondTokenSymbol)?.decimals || 0;
 };
 
@@ -119,8 +126,7 @@ const calculateCumulativePnls = (trades: Trade[]): Record<string, Profit> => {
         trade.tradeType === "OPEN_POSITION" ||
         trade.tradeType === "INCREASE_SIZE"
       ) {
-        openFeeUsd =
-          feeAmount * 10 ** -collateralTokenDecimals * collateralTokenPrice;
+        openFeeUsd = feeUsd;
       }
 
       if (!pnlByOwner[trade.owner]) {
@@ -135,14 +141,6 @@ const calculateCumulativePnls = (trades: Trade[]): Record<string, Profit> => {
       if (trade.pnlUsd !== null) {
         const pnl = parseFloat(trade.pnlUsd);
         if (!isNaN(pnl)) {
-          if (!pnlByOwner[trade.owner]) {
-            pnlByOwner[trade.owner] = {
-              "net profit": 0,
-              "gross profit": 0,
-              "total fees": 0,
-              "open fee": 0,
-            };
-          }
   
           pnlByOwner[trade.owner]["net profit"] += pnl;
           pnlByOwner[trade.owner]["gross profit"] += feeUsd;
@@ -151,6 +149,7 @@ const calculateCumulativePnls = (trades: Trade[]): Record<string, Profit> => {
         }
       } else if (trade.tradeType == "OPEN_POSITION" || trade.tradeType == "INCREASE_SIZE") {
         pnlByOwner[trade.owner]["open fee"] += openFeeUsd;
+        pnlByOwner[trade.owner]["total fees"] += feeUsd;
       }
     }
   

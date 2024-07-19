@@ -1,5 +1,3 @@
-// /pages/beast.tsx
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Transition } from "@headlessui/react";
@@ -78,6 +76,57 @@ const getTraderCsv = async (address: string) => {
   }
 };
 
+const fetchAllSettledPosition = async (from: number, to: number, marketId?: string, setLoading?: Function) => {
+  if (setLoading) setLoading(true);
+  try {
+    const queryParams = `to=${to}&from=${from}&eventTypes=TAKE_PROFIT&eventTypes=CLOSE_POSITION&eventTypes=STOP_LOSS&eventTypes=LIQUIDATE`;
+    const url = `https://api.prod.flash.trade/trading-history/filter?${queryParams}`;
+    const response = await axios.get(url);
+
+    let filteredData = response.data;
+
+    if (marketId) {
+      filteredData = filteredData.filter((trade: any) => trade.market === marketId);
+    }
+
+    const fields = [
+      "txId",
+      "eventIndex",
+      "timestamp",
+      "positionAddress",
+      "owner",
+      "market",
+      "side",
+      "tradeType",
+      "price",
+      "sizeUsd",
+      "sizeAmount",
+      "collateralUsd",
+      "collateralPrice",
+      "collateralAmount",
+      "pnlUsd",
+      "liquidationPrice",
+      "feeAmount",
+      "id",
+      "oraclePrice",
+      "oraclePriceExponent",
+    ];
+
+    const json2csvParser = new Parser({ fields });
+    try {
+      const csv = json2csvParser.parse(filteredData);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      FileSaver.saveAs(blob, `settled_positions_${from}_to_${to}.csv`);
+    } catch (error) {
+      console.error("Error converting JSON to CSV:", error);
+    }
+  } catch (error) {
+    console.error("Error fetching settled positions:", error);
+  } finally {
+    if (setLoading) setLoading(false);
+  }
+};
+
 const copyToClipboard = (text: string, setNotificationVisible: Function) => {
   navigator.clipboard.writeText(`https://beast.flash.trade/?public_key=${text}`).then(
     () => {
@@ -97,11 +146,9 @@ const BeastPage = () => {
   const router = useRouter();
   const { from, to, marketId } = router.query;
 
-  const [tradingData, setTradingData] = useState<Record<string, Profit> | null>(
-    null
-  );
-  
+  const [tradingData, setTradingData] = useState<Record<string, Profit> | null>(null);
   const [notificationVisible, setNotificationVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (from && to) {
@@ -119,7 +166,22 @@ const BeastPage = () => {
 
   return (
     <div className="relative flex flex-col items-center gap-6 p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold text-blue-800">Trading History</h1>
+      <div className="flex items-center gap-4">
+        <h1 className="text-2xl font-bold text-blue-800">Trading History</h1>
+        <button
+          onClick={() => fetchAllSettledPosition(parseInt(from as string, 10), parseInt(to as string, 10), marketId ? marketId as string : undefined, setLoading)}
+          className="ml-4 p-3 bg-green-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition duration-200 ease-in-out transform hover:scale-105"
+        >
+          {loading ? (
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          ) : (
+            "Download Trades"
+          )}
+        </button>
+      </div>
 
       {tradingData ? (
         <div className="mt-6 w-full max-w-2xl bg-white/30 backdrop-blur-md rounded-xl shadow-lg overflow-hidden">
@@ -141,33 +203,32 @@ const BeastPage = () => {
               </tr>
             </thead>
             <tbody>
-            {Object.entries(tradingData).map(([user, pnl]) => (
-  <tr key={user}>
-    <td
-      className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg cursor-pointer"
-      onClick={() =>
-        copyToClipboard(user, setNotificationVisible)
-      }
-    >
-      {shortenAddress(user)}
-    </td>
-    <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">
-      {pnl["net profit"].toFixed(2)} 
-    </td>
-    <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">
-      {pnl["gross profit"].toFixed(2)}
-    </td>
-    <td className="px-6 py-4 border-b border-blue-300 text-center">
-      <button
-        onClick={() => getTraderCsv(user)}
-        className="ml-4 p-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-      >
-        ⬇️
-      </button>
-    </td>
-  </tr>
-))}
-
+              {Object.entries(tradingData).map(([user, pnl]) => (
+                <tr key={user}>
+                  <td
+                    className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg cursor-pointer"
+                    onClick={() =>
+                      copyToClipboard(user, setNotificationVisible)
+                    }
+                  >
+                    {shortenAddress(user)}
+                  </td>
+                  <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">
+                    {pnl["net profit"].toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">
+                    {pnl["gross profit"].toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 border-b border-blue-300 text-center">
+                    <button
+                      onClick={() => getTraderCsv(user)}
+                      className="ml-4 p-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                    >
+                      ⬇️
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

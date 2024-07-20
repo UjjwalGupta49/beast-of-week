@@ -79,7 +79,7 @@ const getTraderCsv = async (address: string) => {
 const fetchAllSettledPosition = async (from: number, to: number, marketId?: string, setLoading?: Function) => {
   if (setLoading) setLoading(true);
   try {
-    const queryParams = `to=${to}&from=${from}&eventTypes=TAKE_PROFIT&eventTypes=CLOSE_POSITION&eventTypes=STOP_LOSS&eventTypes=LIQUIDATE`;
+    const queryParams = `to=${to}&from=${from}`;
     const url = `https://api.prod.flash.trade/trading-history/filter?${queryParams}`;
     const response = await axios.get(url);
 

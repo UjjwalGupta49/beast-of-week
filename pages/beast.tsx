@@ -4,11 +4,51 @@ import { Transition } from "@headlessui/react";
 import axios from "axios";
 import FileSaver from "file-saver";
 import { Parser } from "json2csv";
+import { PoolConfig, Token } from "flash-sdk";
+import { marketInfo, MarketInfo } from "@/utils/marketInfo";
 
 interface Profit {
   "net profit": number;
   "gross profit": number;
 }
+
+interface Trade {
+  txId: string;
+  eventIndex: number;
+  timestamp: string;
+  positionAddress: string;
+  owner: string;
+  market: string;
+  side: string;
+  tradeType: string;
+  price: string | null;
+  sizeUsd: string;
+  sizeAmount: string;
+  collateralUsd: string;
+  collateralPrice: number | null;
+  collateralAmount: string;
+  pnlUsd: string | null;
+  liquidationPrice: number | null;
+  feeAmount: string;
+  id: number;
+  oraclePrice: string;
+  oraclePriceExponent: number;
+}
+
+const POOL_NAMES = ["Crypto.1", "Virtual.1", "Governance.1", "Community.1"];
+const POOL_CONFIGS = POOL_NAMES.map((f) =>
+  PoolConfig.fromIdsByName(f, "mainnet-beta")
+);
+
+// Define DUPLICATE_TOKENS and tokenMap
+const DUPLICATE_TOKENS = POOL_CONFIGS.map((f) => f.tokens).flat();
+const tokenMap = new Map();
+for (const token of DUPLICATE_TOKENS) {
+  tokenMap.set(token.symbol, token);
+}
+
+// Define ALL_TOKENS
+const ALL_TOKENS: Token[] = Array.from(tokenMap.values());
 
 const fetchTradingHistory = async (
   from: number,
@@ -90,13 +130,41 @@ const fetchAllSettledPosition = async (from: number, to: number, marketId?: stri
       filteredData = filteredData.filter((trade: any) => trade.market === marketId);
     }
 
+    // Update the market field with tokenPair from marketInfo and calculate feesUsd
+    const updatedData = filteredData.map((trade: Trade) => {
+      const marketKey = trade.market;
+      if (marketInfo[marketKey]) {
+        trade.market = marketInfo[marketKey].tokenPair;
+      }
+      if (trade.sizeUsd) {
+        trade.sizeUsd = (parseFloat(trade.sizeUsd) * 10 **-6).toString()
+      }
+      if (trade.collateralUsd) {
+        trade.collateralUsd = (parseFloat(trade.collateralUsd) * 10 **-6).toString()
+      }
+      if (trade.pnlUsd) {
+        trade.pnlUsd = (parseFloat(trade.pnlUsd) * 10 **-6).toString()
+      }
+      const collateralTokenDecimals = ALL_TOKENS.find((i) => i.symbol === trade.market)?.decimals || 0;
+      const collateralTokenPrice = trade.side === "long"
+        ? (trade.oraclePrice !== null ? parseFloat(trade.oraclePrice) * 10 ** trade.oraclePriceExponent : (trade.price !== null ? parseFloat(trade.price) * 10 ** -6 : 1.0))
+        : 1.0;
+      trade.oraclePrice = collateralTokenPrice.toString();
+
+      let feesUsd;
+      if (trade.feeAmount) {
+        feesUsd = parseFloat(trade.feeAmount) * (10 ** -collateralTokenDecimals) * collateralTokenPrice;
+      }
+      return { ...trade, feesUsd };
+    });
+
     const fields = [
       "txId",
       "eventIndex",
       "timestamp",
       "positionAddress",
       "owner",
-      "market",
+      "market", // This will now contain the tokenPair value
       "side",
       "tradeType",
       "price",
@@ -108,14 +176,15 @@ const fetchAllSettledPosition = async (from: number, to: number, marketId?: stri
       "pnlUsd",
       "liquidationPrice",
       "feeAmount",
+      "feesUsd", // New field
       "id",
       "oraclePrice",
       "oraclePriceExponent",
     ];
 
     const json2csvParser = new Parser({ fields });
-    try {
-      const csv = json2csvParser.parse(filteredData);
+try {
+      const csv = json2csvParser.parse(updatedData);
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       FileSaver.saveAs(blob, `settled_positions_${from}_to_${to}.csv`);
     } catch (error) {
@@ -127,6 +196,7 @@ const fetchAllSettledPosition = async (from: number, to: number, marketId?: stri
     if (setLoading) setLoading(false);
   }
 };
+
 
 const copyToClipboard = (text: string, setNotificationVisible: Function) => {
   navigator.clipboard.writeText(`https://beast.flash.trade/?public_key=${text}`).then(

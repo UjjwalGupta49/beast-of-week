@@ -57,13 +57,6 @@ const getCollateralTokenDecimals = (marketId: string): number => {
   const tokenPair = marketInfo[marketId]?.tokenPair;
   if (!tokenPair) return 0;
   const secondTokenSymbol = tokenPair.split("/")[1];
-  if (marketId == "DvvnSEZueicT9UN9WMvfYP3B4NQDgiNjjtbKLenLakxv") {
-    console.log({
-      tokenPair: tokenPair,
-      secondTokenSymbol: secondTokenSymbol,
-      decimals: ALL_TOKENS.find((i) => i.symbol === secondTokenSymbol)?.decimals || 0
-    })
-  };
   return ALL_TOKENS.find((i) => i.symbol === secondTokenSymbol)?.decimals || 0;
 };
 

@@ -17,6 +17,15 @@ const DatePickerComponent = () => {
   const [isMarketModalOpen, setIsMarketModalOpen] = useState(false);
   const router = useRouter();
 
+  const getTimestampAtEOD = (date: Date | null): number | null => {
+    if (!date) return null;
+    const dateAtEOD = setMilliseconds(
+      setSeconds(setMinutes(setHours(date, 23), 59), 59),
+      0
+    );
+    return Math.floor(dateAtEOD.getTime() / 1000);
+  };
+
   const getTimestampAtMidnight = (date: Date | null): number | null => {
     if (!date) return null;
     const dateAtMidnight = setMilliseconds(
@@ -38,7 +47,7 @@ const DatePickerComponent = () => {
 
   const handleGetTradingHistory = () => {
     const start = getTimestampAtMidnight(startDate);
-    const end = getTimestampAtMidnight(endDate);
+    const end = getTimestampAtEOD(endDate);
     setStartTimestamp(start);
     setEndTimestamp(end);
     if (startTimestamp !== null && endTimestamp !== null) {

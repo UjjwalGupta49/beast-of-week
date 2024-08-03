@@ -43,8 +43,11 @@ const POOL_CONFIGS = POOL_NAMES.map((f) =>
   PoolConfig.fromIdsByName(f, "mainnet-beta")
 );
 
-const DUPLICATE_TOKENS = POOL_CONFIGS.flatMap((f) => f.tokens);
-const tokenMap = new Map(DUPLICATE_TOKENS.map((token) => [token.symbol, token]));
+const DUPLICATE_TOKENS = POOL_CONFIGS.map((f) => f.tokens).flat();
+const tokenMap = new Map();
+for (const token of DUPLICATE_TOKENS) {
+  tokenMap.set(token.symbol, token);
+}
 const ALL_TOKENS: Token[] = Array.from(tokenMap.values());
 
 const fetchTradingHistory = async (from: number, to: number, marketId: string | null, setTradingData: Function) => {
@@ -79,7 +82,7 @@ const formatTradeData = (trades: Trade[]): Trade[] => {
       }
     });
 
-    const collateralToken = ALL_TOKENS.find((token) => token.symbol === trade.market);
+    const collateralToken = ALL_TOKENS.find((token) => token.symbol === marketInfo[marketKey].tokenPair.split('/')[1]);
     const collateralTokenDecimals = collateralToken?.decimals || 0;
     const collateralTokenPrice =
       trade.side === 'long'
@@ -92,6 +95,7 @@ const formatTradeData = (trades: Trade[]): Trade[] => {
     trade.oraclePrice = collateralTokenPrice.toString();
 
     let feesUsd;
+    let market = trade.market
     if (trade.feeAmount) {
       feesUsd = parseFloat(trade.feeAmount) * 10 ** -collateralTokenDecimals * collateralTokenPrice;
     }

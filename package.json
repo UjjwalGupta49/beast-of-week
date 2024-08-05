@@ -10,10 +10,14 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.0.1",
+    "@nextui-org/react": "^2.4.6",
     "axios": "^1.6.8",
+    "bn.js": "^5.2.1",
+    "buffer-layout": "^1.2.2",
     "date-fns": "^3.6.0",
     "file-saver": "^2.0.5",
     "flash-sdk": "^2.4.8",
+    "framer-motion": "^11.3.21",
     "json-csv": "^4.0.18",
     "json2csv": "^6.0.0-alpha.2",
     "next": "14.2.3",
@@ -22,6 +26,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.5",
     "@types/file-saver": "^2.0.7",
     "@types/json2csv": "^5.0.7",
     "@types/node": "^20",

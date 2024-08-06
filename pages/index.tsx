@@ -19,7 +19,7 @@ export default function HomePage() {
       <div className="relative flex justify-center items-center h-screen bg-gray-100">
         <div className="absolute top-4 right-4">
           <Button color="primary" variant="ghost" onClick={handleRedirect}>
-            Backup Oracle Timestamp
+            Backup Oracle & CPI events
           </Button>
         </div>
         <DatePickerComponent />

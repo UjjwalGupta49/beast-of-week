@@ -33,6 +33,7 @@ interface Trade {
   id: number;
   oraclePrice: string;
   oraclePriceExponent: number;
+  shortTokenPrice?: string;
 };
 
 type UsdFields = 'sizeUsd' | 'collateralUsd' | 'pnlUsd';
@@ -95,18 +96,25 @@ const formatTradeData = (trades: Trade[]): Trade[] => {
     trade.oraclePrice = collateralTokenPrice.toString();
 
     let feesUsd;
-    let market = trade.market
     if (trade.feeAmount) {
       feesUsd = parseFloat(trade.feeAmount) * 10 ** -collateralTokenDecimals * collateralTokenPrice;
     }
 
-    // Convert the timestamp to human-readable UTC standard date and time
+    // Add short token price calculation
+    let shortTokenPrice = "";
+    if (trade.side === 'short') {
+      const shortToken = ALL_TOKENS.find((token) => token.symbol === marketInfo[marketKey].tokenPair.split('/')[0]);
+      const shortTokenDecimals = shortToken?.decimals || 0;
+      shortTokenPrice = (parseFloat(trade.oraclePrice) * 10 ** trade.oraclePriceExponent).toString();
+    }
+
     const timestamp = parseInt(trade.timestamp, 10);
     const date = new Date(timestamp * 1000).toISOString();
 
-    return { ...trade, feesUsd, timestamp: date };
+    return { ...trade, feesUsd, shortTokenPrice, timestamp: date };
   });
 };
+
 
 
 
@@ -116,7 +124,7 @@ const generateCSV = (data: Trade[], filename: string) => {
     "txId", "eventIndex", "timestamp", "positionAddress", "owner", "market",
     "side", "tradeType", "price", "sizeUsd", "sizeAmount", "collateralUsd",
     "collateralPrice", "collateralAmount", "pnlUsd", "liquidationPrice",
-    "feeAmount", "feesUsd", "id", "oraclePrice", "oraclePriceExponent"
+    "feeAmount", "feesUsd", "id", "oraclePrice", "oraclePriceExponent", "shortTokenPrice" // Add this field
   ];
   const json2csvParser = new Parser({ fields });
 
@@ -128,6 +136,7 @@ const generateCSV = (data: Trade[], filename: string) => {
     console.error("Error converting JSON to CSV:", error);
   }
 };
+
 
 const getTraderCsv = async (address: string) => {
   const filteredData = await fetchUserTradingHistory(address);

@@ -6,10 +6,12 @@ import FileSaver from "file-saver";
 import { Parser } from "json2csv";
 import { PoolConfig, Token } from "flash-sdk";
 import { marketInfo } from "@/utils/marketInfo";
+import { Switch } from "@nextui-org/react";
+import { AiOutlineRise, AiOutlineFall } from "react-icons/ai";
 
 interface Profit {
-  "net profit": number;
-  "gross profit": number;
+  "Net PNL": number;
+  "Gross PNL": number;
 }
 
 interface Trade {
@@ -53,12 +55,18 @@ const ALL_TOKENS: Token[] = Array.from(tokenMap.values());
 
 const fetchTradingHistory = async (from: number, to: number, marketId: string | null, setTradingData: Function) => {
   try {
-    const response = await axios.get(`/api/getPnl?from=${from}&to=${to}&marketId=${marketId}`);
+    const url = marketId 
+      ? `/api/getPnl?startTimestamp=${from}&endTimestamp=${to}&market=${marketId}`
+      : `/api/getPnl?startTimestamp=${from}&endTimestamp=${to}`;
+
+    const response = await axios.get(url);
     setTradingData(response.data);
   } catch (error) {
     console.error("Error fetching trading history:", error);
   }
 };
+
+
 
 const fetchUserTradingHistory = async (address: string) => {
   try {
@@ -188,6 +196,8 @@ const BeastPage = () => {
   const [tradingData, setTradingData] = useState<Record<string, Profit> | null>(null);
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isDescending, setIsDescending] = useState(true);
+
 
   useEffect(() => {
     if (from && to) {
@@ -198,8 +208,23 @@ const BeastPage = () => {
     }
   }, [from, to, marketId]);
 
+
+
   return (
     <div className="relative flex flex-col items-center gap-6 p-6 bg-gray-100 min-h-screen">
+      <div className="absolute top-4 left-4">
+        <Switch
+          size="lg"
+          color="success"
+          startContent={<AiOutlineRise />}
+          endContent={<AiOutlineFall />}
+          defaultSelected={isDescending}
+          onChange={() => setIsDescending(!isDescending)}
+        >
+          Sort Descending
+        </Switch>
+      </div>
+  
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold text-blue-800">Trading History</h1>
         <button
@@ -216,7 +241,7 @@ const BeastPage = () => {
           )}
         </button>
       </div>
-
+  
       {tradingData ? (
         <div className="mt-6 w-full max-w-2xl bg-white/30 backdrop-blur-md rounded-xl shadow-lg overflow-hidden">
           <table className="min-w-full bg-white/60 rounded-md backdrop-blur-md">
@@ -229,21 +254,25 @@ const BeastPage = () => {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(tradingData).map(([user, pnl]) => (
-                <tr key={user}>
-                  <td
-                    className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg cursor-pointer"
-                    onClick={() => copyToClipboard(user, setNotificationVisible)}
-                  >
-                    {shortenAddress(user)}
-                  </td>
-                  <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">{pnl["net profit"].toFixed(2)}</td>
-                  <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">{pnl["gross profit"].toFixed(2)}</td>
-                  <td className="px-6 py-4 border-b border-blue-300 text-center">
-                    <button onClick={() => getTraderCsv(user)} className="ml-4 p-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">⬇️</button>
-                  </td>
-                </tr>
-              ))}
+              {Object.entries(tradingData)
+                .sort(([, pnlA], [, pnlB]) =>
+                  isDescending ? pnlB["Net PNL"] - pnlA["Net PNL"] : pnlA["Net PNL"] - pnlB["Net PNL"]
+                )
+                .map(([user, pnl]) => (
+                  <tr key={user}>
+                    <td
+                      className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg cursor-pointer"
+                      onClick={() => copyToClipboard(user, setNotificationVisible)}
+                    >
+                      {shortenAddress(user)}
+                    </td>
+                    <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">{pnl["Net PNL"].toFixed(2)}</td>
+                    <td className="px-6 py-4 border-b border-blue-300 text-blue-800 text-lg">{pnl["Gross PNL"].toFixed(2)}</td>
+                    <td className="px-6 py-4 border-b border-blue-300 text-center">
+                      <button onClick={() => getTraderCsv(user)} className="ml-4 p-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700">⬇️</button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -255,7 +284,7 @@ const BeastPage = () => {
           </svg>
         </div>
       )}
-
+  
       <Transition
         show={notificationVisible}
         enter="transition-opacity duration-300"
@@ -271,6 +300,7 @@ const BeastPage = () => {
       </Transition>
     </div>
   );
+  
 };
 
 export default BeastPage;

@@ -1,8 +1,8 @@
 export interface MarketInfo {
   [key: string]: {
-      tokenPair: string;
-      side: string;
-      pool: string;
+    tokenPair: string;
+    side: string;
+    pool: string;
   }
 }
 
@@ -24,127 +24,147 @@ const marketInfo: MarketInfo = {
     side: "long",
     pool: "Crypto.1"
   },
-  "AAHFmCVd4JXXrLFmGBataeCJ6CwrYs4cYMiebXmBFvPE":{
-    tokenPair:"BTC/USDC",
-    side:"short",
+  "AAHFmCVd4JXXrLFmGBataeCJ6CwrYs4cYMiebXmBFvPE": {
+    tokenPair: "BTC/USDC",
+    side: "short",
     pool: "Crypto.1"
   },
-  "JCwYots22PTcPn2XQz9un15kMj6tqEYjUKgQaay5sMY1":{
-    tokenPair:"AUD/USDC",
-    side:"short",
+  "JCwYots22PTcPn2XQz9un15kMj6tqEYjUKgQaay5sMY1": {
+    tokenPair: "AUD/USDC",
+    side: "short",
     pool: "Virtual.1"
   },
-  "7JwSejqoicRSzks3mKwk9TPp5rUNhUttKx2yzgU8UGtc":{
-    tokenPair:"XAG/USDC",
-    side:"short",
+  "7JwSejqoicRSzks3mKwk9TPp5rUNhUttKx2yzgU8UGtc": {
+    tokenPair: "XAG/USDC",
+    side: "short",
     pool: "Virtual.1"
   },
-  "Caqzhuj2Hj5MUwQigdtLNokLZbuqs6NrcmwWbMsSqwqH":{
-    tokenPair:"XAG/USDC",
-    side:"short",
+  "Caqzhuj2Hj5MUwQigdtLNokLZbuqs6NrcmwWbMsSqwqH": {
+    tokenPair: "XAG/USDC",
+    side: "short",
     pool: "Virtual.1"
   },
-  "9tvuK63WUV2mgWt7AvWUm7kRUpFKsRX1jewyJ21VTWsM":{
-    tokenPair:"SOL/USDC",
-    side:"short",
+  "9tvuK63WUV2mgWt7AvWUm7kRUpFKsRX1jewyJ21VTWsM": {
+    tokenPair: "SOL/USDC",
+    side: "short",
     pool: "Crypto.1"
   },
-  "2CvUh7whei331D2djP4W2QwV7UUiMbpKgfJNSDojcjne":{
-    tokenPair:"EUR/USDC",
-    side:"short",
+  "2CvUh7whei331D2djP4W2QwV7UUiMbpKgfJNSDojcjne": {
+    tokenPair: "EUR/USDC",
+    side: "short",
     pool: "Virtual.1"
   },
-  "6pKnzQwmrSCz6HK4C4qXUscysGpQj381ksmNwmVHSdJ4":{
-    tokenPair:"GBP/USDC",
-    side:"short",
+  "6pKnzQwmrSCz6HK4C4qXUscysGpQj381ksmNwmVHSdJ4": {
+    tokenPair: "GBP/USDC",
+    side: "short",
     pool: "Virtual.1"
   },
-  "DXbQZYeT1LfyJvr86wnaMhwkPaFHazmHJkuyb1XzCmo3":{
-    tokenPair:"EUR/USDC",
-    side:"long",
+  "DXbQZYeT1LfyJvr86wnaMhwkPaFHazmHJkuyb1XzCmo3": {
+    tokenPair: "EUR/USDC",
+    side: "long",
     pool: "Virtual.1"
   },
-  "GGV4VHTAEyWGyGubXTiQZiPajCEtGv2Ed2G2BHmY3zNZ":{
-    tokenPair:"BTC/BTC",
-    side:"long",
+  "GGV4VHTAEyWGyGubXTiQZiPajCEtGv2Ed2G2BHmY3zNZ": {
+    tokenPair: "BTC/BTC",
+    side: "long",
     pool: "Crypto.1"
   },
-  "GxkxRPheec7f9ZbamzeWdiHiMbrgyoUV7MFPxXW1387q":{
-    tokenPair:"ETH/USDC",
-    side:"short",
+  "GxkxRPheec7f9ZbamzeWdiHiMbrgyoUV7MFPxXW1387q": {
+    tokenPair: "ETH/USDC",
+    side: "short",
     pool: "Crypto.1"
   },
-  "8r5MBC3oULSWdm69yn2q3gBLp6h1AL4Wo11LBzcCZGWJ":{
-    tokenPair:"ETH/ETH",
-    side:"long",
+  "8r5MBC3oULSWdm69yn2q3gBLp6h1AL4Wo11LBzcCZGWJ": {
+    tokenPair: "ETH/ETH",
+    side: "long",
     pool: "Crypto.1"
   },
-  "CxC8u5SBCtu9a53x7jSZtaAuJoKYA2ukXLuMuB9NtqoQ":{
-    tokenPair:"AUD/USDC",
-    side:"long",
+  "CxC8u5SBCtu9a53x7jSZtaAuJoKYA2ukXLuMuB9NtqoQ": {
+    tokenPair: "AUD/USDC",
+    side: "long",
     pool: "Virtual.1"
   },
-  "88zawd3Rw6tknWvgEm8QBgBuf5Y2GTeA18S788qUrSnM":{
-    tokenPair:"XAU/USDC",
-    side:"long",
+  "88zawd3Rw6tknWvgEm8QBgBuf5Y2GTeA18S788qUrSnM": {
+    tokenPair: "XAU/USDC",
+    side: "long",
     pool: "Virtual.1"
   },
-  "5QQstJ2LpeHESWqGTWBw5aid8h4cdVUjXU61R84Pj2jr":{
+  "5QQstJ2LpeHESWqGTWBw5aid8h4cdVUjXU61R84Pj2jr": {
     tokenPair: "JUP/JUP",
-    side:"long",
+    side: "long",
     pool: "Governance.1"
   },
-  "7gnDo7scDFYmEnXW2JrGRzCrynmbakoCMqaEo7d2fydG":{
+  "7gnDo7scDFYmEnXW2JrGRzCrynmbakoCMqaEo7d2fydG": {
     tokenPair: "JTO/JTO",
-    side:"long",
+    side: "long",
     pool: "Governance.1"
   },
-  "9V9eYLhVV13VoSfi3McfMcN7ie4WNkRdTbHggkaT8QCQ":{
+  "9V9eYLhVV13VoSfi3McfMcN7ie4WNkRdTbHggkaT8QCQ": {
     tokenPair: "PYTH/PYTH",
-    side:"long",
+    side: "long",
     pool: "Governance.1"
   },
-  "Hi8kSmbtzucZpEYxvcq2H1QuyUCRuY3m7WGmTF2RhkVw":{
+  "Hi8kSmbtzucZpEYxvcq2H1QuyUCRuY3m7WGmTF2RhkVw": {
     tokenPair: "JUP/USDC",
-    side:"short",
+    side: "short",
     pool: "Governance.1"
   },
-  "2By2fgwfZQetZ56414KBDMZwNBstg3GAJtEePQtf3Aty":{
+  "2By2fgwfZQetZ56414KBDMZwNBstg3GAJtEePQtf3Aty": {
     tokenPair: "PYTH/USDC",
-    side:"short",
+    side: "short",
     pool: "Governance.1"
   },
-  "G7RdCWx4eNfLdagGp4H2tKwhTi9JihBozVLGMVduF1Xe":{
+  "G7RdCWx4eNfLdagGp4H2tKwhTi9JihBozVLGMVduF1Xe": {
     tokenPair: "JTO/USDC",
-    side:"short",
+    side: "short",
     pool: "Governance.1"
   },
-    "Dk2P1xDyewb9nxsMacw6gfuhTb3DqPZM1Sm97K66CTQK":{
+  "Dk2P1xDyewb9nxsMacw6gfuhTb3DqPZM1Sm97K66CTQK": {
     tokenPair: "W/W",
-    side:"long",
+    side: "long",
     pool: "Governance.1"
   },
-  "9mMAN4hFvw5AGB6eNay1WvNsGoyK9xcBafZ5tVbHcHQq":{
+  "9mMAN4hFvw5AGB6eNay1WvNsGoyK9xcBafZ5tVbHcHQq": {
     tokenPair: "W/USDC",
-    side:"short",
+    side: "short",
     pool: "Governance.1"
   },
-    "DvvnSEZueicT9UN9WMvfYP3B4NQDgiNjjtbKLenLakxv":{
-    tokenPair:"BONK/BONK",
-    side:"long",
+  "aZCThBPnK1j8feCAKnVtS3QjULzNwPDy4a8V3FzbM9V": {
+    tokenPair: "RAY/RAY",
+    side: "long",
+    pool: "Governance.1"
+  },
+  "6u6QrwkmAF4kzk41FkjpLv8AbYaTtkRtbmVZsPSf7wSd": {
+    tokenPair: "RAY/USDC",
+    side: "short",
+    pool: "Governance.1"
+  },
+  "DvvnSEZueicT9UN9WMvfYP3B4NQDgiNjjtbKLenLakxv": {
+    tokenPair: "BONK/BONK",
+    side: "long",
     pool: "Community.1"
   },
-    "3EYDn8VkY19QBStG4QtvLAdPScReLS7kuchhterF7ADP":{
-    tokenPair:"BONK/USDC",
-    side:"short",
+  "3EYDn8VkY19QBStG4QtvLAdPScReLS7kuchhterF7ADP": {
+    tokenPair: "BONK/USDC",
+    side: "short",
     pool: "Community.1"
   },
+  "DRMbqfx6No2MzRLtyo4RUaKExe4daiVAXKsX3F3RAK3u": {
+    tokenPair: "WIF/WIF",
+    side: "long",
+    pool: "Community.2"
+  },
+  "9X4S2ZeFdpoTe5LkEUZ6hPqkTo6k4LyYpBZJiwBVRj6": {
+    tokenPair: "WIF/USDC",
+    side: "short",
+    pool: "Community.2"
+  }
 
-//   "":{
-//     tokenPair:"",
-//     side:"",
-//     pool: ""
-//   },
+  //   "":{
+  //     tokenPair:"",
+  //     side:"",
+  //     pool: ""
+  //   },
 };
 // Crypto.1, Virtual.1, Governance.1, Community.1
 

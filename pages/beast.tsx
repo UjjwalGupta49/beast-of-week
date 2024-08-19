@@ -154,14 +154,15 @@ const getTraderCsv = async (address: string) => {
   generateCSV(updatedData, `trading_history_${address}.csv`);
 };
 
-const fetchAllSettledPosition = async (from: number, to: number, marketId?: string, setLoading?: Function) => {
+const fetchAllSettledPosition = async (from: number, to: number, marketId?: string, setLoading?: Function, tradingData?: Record<string, Profit> | null) => {
   if (setLoading) setLoading(true);
   try {
     const queryParams = `to=${to}&from=${from}&eventTypes=OPEN_POSITION&eventTypes=CLOSE_POSITION&eventTypes=TAKE_PROFIT&eventTypes=STOP_LOSS&eventTypes=LIQUIDATE&eventTypes=ADD_COLLATERAL&eventTypes=REMOVE_COLLATERAL&eventTypes=INCREASE_SIZE&eventTypes=DECREASE_SIZE`;
     const url = `https://api.prod.flash.trade/trading-history/filter?${queryParams}`;
     const response = await axios.get(url);
-
-    let filteredData = response.data;
+    const owners = Object.keys(tradingData!);
+    // Do not show corrupted / incomplete trade cycles
+    let filteredData = response.data.filter((trade:Trade) => owners.includes(trade.owner));
     if (marketId) {
       filteredData = filteredData.filter((trade:Trade) => trade.market === marketId);
     }
@@ -228,7 +229,7 @@ const BeastPage = () => {
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold text-blue-800">Trading History</h1>
         <button
-          onClick={() => fetchAllSettledPosition(parseInt(from as string, 10), parseInt(to as string, 10), marketId ? marketId as string : undefined, setLoading)}
+          onClick={() => fetchAllSettledPosition(parseInt(from as string, 10), parseInt(to as string, 10), marketId ? marketId as string : undefined, setLoading, tradingData)}
           className="ml-4 p-3 bg-green-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition duration-200 ease-in-out transform hover:scale-105"
         >
           {loading ? (
